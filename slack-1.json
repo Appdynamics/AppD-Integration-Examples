@@ -1,0 +1,44 @@
+## Start
+## AppDynamics Alerting Slack Integration
+## Maintainer: David Ryder
+##
+## Custom Template Variables
+#set( $APPD_ACCOUNT = "ACCOUNT-NAME")
+#set( $APPD_SLACK = "#SLACK-CHANNEL")
+##
+#set( $URL_INFO = "https://"+"APPD_ACCOUNT"+".saas.appdynamics.com/images/PI_INFO_large.png")
+#set( $URL_WARN = "https://"+"$APPD_ACCOUNT"+".saas.appdynamics.com/images/PI_WARNING_large.png")
+#set( $URL_CRIT = "https://"+"$APPD_ACCOUNT"+".saas.appdynamics.com/images/PI_CRITICAL_large.png")
+#set( $URL_AUTH_ICON = "https://logo.clearbit.com/appdynamics.de")
+{
+  "channel": "${APPD_SLACK}",
+  "username": "AppDynamics",
+  "author_name": "AppDynamics",
+  "author_icon": "${URL_AUTH_ICON}",
+  "blocks": [
+    { "type": "section",
+      "text": { "type": "mrkdwn", "text": "*Alert for:* ${policy.name}\t*Occurred on:* ${latestEvent.eventTime}\n*Account:* ${account.name}" }
+    },
+    { "type": "section",
+      "text": { "type": "mrkdwn", "text": "*The following events were detected:*" },
+    },
+    #foreach(${eventList} in ${fullEventsByTypeMap.values()})
+      #foreach(${event} in ${eventList})
+        { "type": "section",
+          "block_id": "Alert-${event.id}",
+          "text": { "type": "mrkdwn",
+                    "text": "<${event.deepLink}|*${event.displayName}*>\t${event.eventTime}\n${event.eventMessage.replace("<b>", "*").replace("</b>", "*").replace("<br>", "\n")}"
+                  },
+          "accessory": { "type": "image",
+                         "image_url": #if($event.severity == "INFO")"$URL_INFO"
+                                      #elseif($event.severity == "WARN")"$URL_WARN"
+                                      #elseif($event.severity == "ERROR")"$URL_CRIT"
+                                      #else"$URL_INFO"#end,
+                          "alt_text": "Severity: ${event.severity}" }
+        },
+      #end
+    #end
+    { "type": "divider" },
+  ]
+}
+## End
