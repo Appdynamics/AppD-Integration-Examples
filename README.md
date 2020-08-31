@@ -16,7 +16,7 @@ https://velocity.apache.org/engine/1.5/user-guide.html#parse
 
 
 # Example Slack Alert
-[Example Slack Alert](slack-1.png)
+![Example Slack Alert](slack-1.png)
 
 
 
